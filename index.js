@@ -20,9 +20,21 @@ app.use(cookieParser())
 // app.use(bodyParser.urlencoded())
 // app.use(bodyParser.json())
 
+
+// all routes here  
+const authRouter = require('./src/users/user.router')
+
+app.use('/api/auth', authRouter)
+
 async function main() {
   await mongoose.connect(process.env.MONGODB_URI)
 }
+
+main().then(() => {
+  console.log("✅ Connected to MongoDB");
+}).catch(err => {
+  console.error("❌ MongoDB connection error:", err);
+});
 
 
 
