@@ -1,12 +1,18 @@
 const express = require('express');
 const bcrypt = require('bcrypt')
 const User = require('./user.model'); 
+const generateToken = require('../middleware/generateToken');
 
 const router = express.Router();
 
 router.post('/register', async (req, res) => {
   try {
     const { username, email, password } = req.body;
+
+    const isExist =await User.findOne({email})
+    if(isExist){
+      res.status(500).json({ message: "email already exists." });
+    }
 
     const newUser = new User({ username, email, password });
     await newUser.save();
@@ -31,7 +37,23 @@ router.post('/login', async (req, res) => {
         if(!isMatch){
             res.status(404).json({message: "wrong password"})
         }else{
-            res.status(200).json({message: "welcome"})
+          const token = await generateToken(user._id)
+          res.cookie('token', token, {
+            httpOnly: true,
+            secure: true, 
+            sameSite: 'none'
+          })
+          
+            res.status(200).json({message: "user successfully logged In", user: {
+              username: user.username,
+              email: user.email,
+              role: user.role,
+              profileImage : user.profileImage,
+              bio : user.bio,
+              date : user.date
+            }
+
+            })
             
         }
        }
