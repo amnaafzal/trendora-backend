@@ -131,4 +131,34 @@ router.put('/user/:id', async (req, res) => {
 
 })
 
+// upadate user profile
+
+router.patch('/edit-profile', async(req, res) =>{
+  const { userId, username, bio, profileImage, email} = req.body;
+
+ try {
+   if(!userId){
+    res.status(400).json({message: "no userId"})
+  }
+  const user = await User.findById(userId);
+
+  if(!user)
+    res.status(400).json({message: "no user found"})
+
+  if(username !== undefined) user.username = username;
+  if(bio !== undefined) user.bio = bio;
+  if(profileImage !== undefined) user.profileImage = profileImage;
+  if(email !== undefined) user.email = email;
+
+  await user.save()
+  
+  res.status(200).json({message: "profile updated successfully", user: user})
+
+ } catch (error) {
+  
+   res.status(500).json({message: "error while updating profile", error: error.message})
+ }
+
+})
+
 module.exports = router;
