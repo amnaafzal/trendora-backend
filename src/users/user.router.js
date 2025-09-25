@@ -6,6 +6,8 @@ const verifyToken = require('../middleware/verifyToken');
 
 const router = express.Router();
 
+// register user
+
 router.post('/register', async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -23,6 +25,9 @@ router.post('/register', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+
+// usser login
 
 router.post('/login', async (req, res) => {
   try {
@@ -71,24 +76,59 @@ router.post('/login', async (req, res) => {
   }
 })
 
+// logout request
+
 router.post('/logout', (req, res) => {
 
   res.clearCookie('token')
   res.status(200).json({ message: "logout successfully" })
 })
 
+// delete the user
 
-router.delete('/delete/:id', (req, res) => {
+router.delete('/users/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const user = User.findByIdAndDelete(id);
+    const user = await User.findByIdAndDelete(id);
     if (!user) {
       return res.status(404).json({ message: "user not found" })
     }
-    res.status(200).json({ message: "user deleted successfully" })
+    res.status(200).json({ message: "user deleted successfully", user: user })
   } catch (error) {
-    res.status(500).json({message: "error while deleting user", error: error.message})
+    res.status(500).json({ message: "error while deleting user", error: error.message })
   }
+})
+
+
+// get all users
+
+router.get('/users', async (req, res) => {
+  try {
+
+    const all_users = await User.find({}, "id email role").sort({ createdAt: -1 })
+    res.status(200).json({ message: "Got all user successfully", count: all_users.length, users: all_users })
+
+  } catch (error) {
+    res.status(500).json({ message: "error while getting all user", error: error.message })
+  }
+})
+
+// update the role
+
+router.put('/user/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+    const updatedUser = await User.findByIdAndUpdate(id, { role }, { new: true });
+
+    if (!updatedUser)
+      res.status(404).json({ message: "no user found" })
+    res.status(200).json({ message: "role updated successfully" , user: updatedUser})
+
+  } catch (error) {
+     res.status(500).json({message: "error while updating user role", error: error.message})
+  }
+
 })
 
 module.exports = router;
