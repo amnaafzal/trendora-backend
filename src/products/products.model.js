@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const productsSchema = new Schema({
@@ -9,7 +9,7 @@ const productsSchema = new Schema({
     oldPrice: Number,
     image:  {type: String, required: true},
     color: String,
-    rating: {type: Number, required: true},
+    rating: {type: Number, default: 0},
     author: { type: mongoose.Types.ObjectId, ref:"User", required: true }
 })
 

@@ -1,13 +1,16 @@
-import mongoose from 'mongoose';
+const mongoose =require('mongoose');
 const { Schema } = mongoose;
+require('../products/products.model');
+require('../users/user.model')
+
 
 
 const reviewSchema = new Schema({
     comment: {type: String, requied: true},
     rating: {type:Number, requied: true },
-    userId : { type: mongoose.Types.ObjectId, ref: "User", requied: true},
-    productId : { type: mongoose.Types.ObjectId, ref: "Product", requied: true},
+    userId : { type: mongoose.Types.ObjectId, ref: "User", required: true},
+    productId : { type: mongoose.Types.ObjectId, ref: "product", required: true},
 })
 
-const reviews = mongoose.model("review", reviewSchema);
-module.exports = reviews;
+const Reviews = mongoose.model("Reviews", reviewSchema);
+module.exports = Reviews;

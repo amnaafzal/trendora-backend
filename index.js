@@ -18,11 +18,18 @@ app.use(cors({
 }))
 app.use(cookieParser())
 
+// models
+require('./src/users/user.model');
+require('./src/reviews/reviews.models');
+require('./src/products/products.model');
+
 
 // all routes here  
 const authRouter = require('./src/users/user.router')
+const ProductRouter = require('./src/products/products.routes')
 
-app.use('/api/auth', authRouter)
+app.use('/api/auth', authRouter);
+app.use('/api/products', ProductRouter);
 
 async function main() {
   await mongoose.connect(process.env.MONGODB_URI)
