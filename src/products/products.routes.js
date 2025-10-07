@@ -26,7 +26,7 @@ router.post('/new-product', async (req, res) => {
         res.status(200).json({ message: "product created successfully", product: newProduct });
     } catch (error) {
         console.log(error)
-        res.status(500).send({ message: error.message })
+        res.status(500).send({ message: "error while posting new product", error: error.message })
     }
 })
 
@@ -69,7 +69,7 @@ router.get('/', async (req, res) => {
         res.status(200).json({ message: "all products retrieved successfully", count: filteredProducts.length, products: filteredProducts })
     } catch (error) {
         console.log(error, error.message)
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message:"error while getting all products",error: error.message });
     }
 })
 
@@ -79,8 +79,8 @@ router.get("/:id", async (req, res) => {
     try {
         const productId = req.params.id;
         const singleProduct = await products.findById(productId).populate('author', 'email username');
-        const reviews = await (await Reviews.find({productId})).populate('author', 'username email')
-
+        const reviews = await Reviews.find({productId}).populate('author', 'username email')
+        await singleProduct.save();
         if (singleProduct) {
             res.status(200).json({ message: "got the product successfully", product: singleProduct, reviews : reviews })
         } else {
@@ -88,9 +88,28 @@ router.get("/:id", async (req, res) => {
         }
 
     } catch (error) {
-        res.status(500).send({ message: error.message });
+        res.status(500).send({ message:"error while getting single product" , error:error.message });
     }
 })
 
+
+// update product
+
+router.patch("/update-product/:id", async(req, res) => {
+    try {
+        const productId = req.params.id;
+        const updatedProduct = await products.findByIdAndUpdate(productId, {...req.body}, {new: true});
+
+        if(!updatedProduct){
+            res.status(200).json({message: "no product found"})
+        }
+        console.log(updatedProduct);
+        res.status(200).json({message: "product updated successfully", product: updatedProduct})
+
+
+    } catch (error) {
+        res.status(500).json({message:"error while updating product", error:error.message})
+    }
+})
 
 module.exports = router;
