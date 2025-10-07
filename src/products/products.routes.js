@@ -3,6 +3,8 @@ const router = express.Router();
 const products = require('./products.model')
 const Reviews = require('../reviews/reviews.models')
 
+// POST NEW PRODUCTS
+
 router.post('/new-product', async (req, res) => {
     try {
         const newProduct = new products({
@@ -14,18 +16,22 @@ router.post('/new-product', async (req, res) => {
         // caculate rating 
 
         const reviews = await Reviews.find({ productId: savedProduct._id });
-        let rating = reviews.reduce((acc, review) => acc + review.rating, 0);
-        let finalRating = rating / reviews.length;
-        savedProduct.rating = finalRating;
-        await savedProduct.save();
+        if (reviews.length > 0) {
+            let rating = reviews.reduce((acc, review) => acc + review.rating, 0);
+            let finalRating = rating / reviews.length;
+            savedProduct.rating = finalRating;
+            await savedProduct.save();
+        }
 
         res.status(200).json({ message: "product created successfully", product: newProduct });
     } catch (error) {
+        console.log(error)
         res.status(500).send({ message: error.message })
     }
 })
 
-router.get('/', async(req, res) => {
+// GET ALL PRODUCTS (FILTERS)
+router.get('/', async (req, res) => {
 
     try {
         const { category, color, minPrice, maxPrice, page = 1, limit = 10 } = req.query;
@@ -54,19 +60,36 @@ router.get('/', async(req, res) => {
 
         const totalPages = Math.ceil(totalProducts / parseInt(limit));
 
-        const filteredProducts =await products.find(filter)
+        const filteredProducts = await products.find(filter)
             .skip(skip)
             .limit(parseInt(limit))
             .populate('author', 'email')
             .sort({ createdAt: -1 });
 
-        res.status(200).json({ message: "all products retrieved successfully", products: filteredProducts })
+        res.status(200).json({ message: "all products retrieved successfully", count: filteredProducts.length, products: filteredProducts })
     } catch (error) {
         console.log(error, error.message)
-        res.status(500).json({message: error.message});
+        res.status(500).json({ message: error.message });
     }
 })
 
+// GET SINGLE PRODUCT
+
+router.get("/:id", async (req, res) => {
+    try {
+        const id = req.params.id;
+        const singleProduct = await products.findById(id);
+
+        if (singleProduct) {
+            res.status(200).json({ message: "got the product successfully", product: singleProduct })
+        } else {
+            res.status(200).json({ message: "no product found" })
+        }
+
+    } catch (error) {
+        res.status(500).send({ message: error.message });
+    }
+})
 
 
 module.exports = router;

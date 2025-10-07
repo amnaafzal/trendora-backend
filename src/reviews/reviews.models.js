@@ -6,8 +6,8 @@ require('../users/user.model')
 
 
 const reviewSchema = new Schema({
-    comment: {type: String, requied: true},
-    rating: {type:Number, requied: true },
+    comment: {type: String, requried: true},
+    rating: {type:Number, requried: true },
     userId : { type: mongoose.Types.ObjectId, ref: "User", required: true},
     productId : { type: mongoose.Types.ObjectId, ref: "product", required: true},
 })
