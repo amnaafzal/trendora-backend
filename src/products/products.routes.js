@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const products = require('./products.model')
-const Reviews = require('../reviews/reviews.models')
+const Reviews = require('../reviews/reviews.models');
+const verifyToken = require('../middleware/verifyToken');
 
 // POST NEW PRODUCTS
 
-router.post('/new-product', async (req, res) => {
+router.post('/new-product', verifyToken ,async (req, res) => {
     try {
         const newProduct = new products({
             ...req.body
@@ -75,7 +76,7 @@ router.get('/', async (req, res) => {
 
 // GET SINGLE PRODUCT
 
-router.get("/:id", async (req, res) => {
+router.get("/:id" ,async (req, res) => {
     try {
         const productId = req.params.id;
         const singleProduct = await products.findById(productId).populate('author', 'email username');
@@ -95,7 +96,7 @@ router.get("/:id", async (req, res) => {
 
 // update product
 
-router.patch("/update-product/:id", async (req, res) => {
+router.patch("/update-product/:id", verifyToken ,async (req, res) => {
     try {
         const productId = req.params.id;
         const updatedProduct = await products.findByIdAndUpdate(productId, { ...req.body }, { new: true });
@@ -114,7 +115,7 @@ router.patch("/update-product/:id", async (req, res) => {
 
 // DELETE PRODUCT ROUTE
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id',verifyToken , async (req, res) => {
     try {
         const productId = req.params.id;
         const deletedProduct = await products.findByIdAndDelete(productId);
