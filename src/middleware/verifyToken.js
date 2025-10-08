@@ -6,6 +6,7 @@ const SECRET_KEY = process.env.SECRET_KEY;
 
 const verifyToken = (req, res, next) => {
     const token = req.cookies.token;
+    // const token = req.headers.authorization?.split(" ")[1];  //for postman we need to do this bcoz postman can't verify admin through cookies
 
     try {
         if (!token) {

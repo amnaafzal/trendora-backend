@@ -3,10 +3,11 @@ const router = express.Router();
 const products = require('./products.model')
 const Reviews = require('../reviews/reviews.models');
 const verifyToken = require('../middleware/verifyToken');
+const verifyAdmin = require('../middleware/verifyAdmin');
 
 // POST NEW PRODUCTS
 
-router.post('/new-product', verifyToken ,async (req, res) => {
+router.post('/new-product' ,verifyToken, verifyAdmin ,async (req, res) => {
     try {
         const newProduct = new products({
             ...req.body
@@ -96,7 +97,7 @@ router.get("/:id" ,async (req, res) => {
 
 // update product
 
-router.patch("/update-product/:id", verifyToken ,async (req, res) => {
+router.patch("/update-product/:id", verifyToken, verifyAdmin ,async (req, res) => {
     try {
         const productId = req.params.id;
         const updatedProduct = await products.findByIdAndUpdate(productId, { ...req.body }, { new: true });
@@ -115,7 +116,7 @@ router.patch("/update-product/:id", verifyToken ,async (req, res) => {
 
 // DELETE PRODUCT ROUTE
 
-router.delete('/:id',verifyToken , async (req, res) => {
+router.delete('/:id',verifyToken , verifyAdmin, async (req, res) => {
     try {
         const productId = req.params.id;
         const deletedProduct = await products.findByIdAndDelete(productId);
