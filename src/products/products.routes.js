@@ -7,7 +7,7 @@ const verifyAdmin = require('../middleware/verifyAdmin');
 
 // POST NEW PRODUCTS
 
-router.post('/new-product' ,verifyToken, verifyAdmin ,async (req, res) => {
+router.post('/new-product', verifyToken, verifyAdmin, async (req, res) => {
     try {
         const newProduct = new products({
             ...req.body
@@ -36,7 +36,7 @@ router.post('/new-product' ,verifyToken, verifyAdmin ,async (req, res) => {
 router.get('/', async (req, res) => {
 
     try {
-        const { category, color, minPrice, maxPrice, page = 1, limit = 10 } = req.query;
+        const { category, color, minprice, maxprice, page = 1, limit = 10 } = req.query;
 
         const filter = {};
 
@@ -48,12 +48,12 @@ router.get('/', async (req, res) => {
             filter.color = color;
         }
 
-        if (minPrice && maxPrice) {
-            const min = parseFloat(minPrice);
-            const max = parseFloat(maxPrice);
+        if (minprice && maxprice) {
+            const min = parseFloat(minprice);
+            const max = parseFloat(maxprice);
 
-            if (!NaN(min) && !NaN(max)) {
-                filter.price = { $gte: max, $lte: min };
+            if (!isNaN(min) && !isNaN(max)) {
+                filter.price = { $gte: min, $lte: max };
             }
         }
 
@@ -68,7 +68,7 @@ router.get('/', async (req, res) => {
             .populate('author', 'email')
             .sort({ createdAt: -1 });
 
-        res.status(200).json({ message: "all products retrieved successfully", count: filteredProducts.length, products: filteredProducts })
+        res.status(200).json({ message: "all products retrieved successfully", count: totalProducts, products: filteredProducts, totalPages: totalPages })
     } catch (error) {
         console.log(error, error.message)
         res.status(500).json({ message: "error while getting all products", error: error.message });
@@ -77,7 +77,7 @@ router.get('/', async (req, res) => {
 
 // GET SINGLE PRODUCT
 
-router.get("/:id" ,async (req, res) => {
+router.get("/:id", async (req, res) => {
     try {
         const productId = req.params.id;
         const singleProduct = await products.findById(productId).populate('author', 'email username');
@@ -97,7 +97,7 @@ router.get("/:id" ,async (req, res) => {
 
 // update product
 
-router.patch("/update-product/:id", verifyToken, verifyAdmin ,async (req, res) => {
+router.patch("/update-product/:id", verifyToken, verifyAdmin, async (req, res) => {
     try {
         const productId = req.params.id;
         const updatedProduct = await products.findByIdAndUpdate(productId, { ...req.body }, { new: true });
@@ -116,7 +116,7 @@ router.patch("/update-product/:id", verifyToken, verifyAdmin ,async (req, res) =
 
 // DELETE PRODUCT ROUTE
 
-router.delete('/:id',verifyToken , verifyAdmin, async (req, res) => {
+router.delete('/:id', verifyToken, verifyAdmin, async (req, res) => {
     try {
         const productId = req.params.id;
         const deletedProduct = await products.findByIdAndDelete(productId);
@@ -136,7 +136,7 @@ router.delete('/:id',verifyToken , verifyAdmin, async (req, res) => {
 
 // RELATED PRODUCTS
 
-router.get('/related-products/:id', async(req, res) => {
+router.get('/related-products/:id', async (req, res) => {
     try {
         const productId = req.params.id;
         const fetchedProduct = await products.findById(productId);
@@ -152,17 +152,17 @@ router.get('/related-products/:id', async(req, res) => {
             const relatedProducts = await products.find(filter);
             console.log(relatedProducts);
 
-            if(!relatedProducts){
-                res.status(404).send({message: "No related products "})
+            if (!relatedProducts) {
+                res.status(404).send({ message: "No related products " })
             }
-            else{
-                res.status(200).json({message: "get related products successfully", count: relatedProducts.length ,relatedProducts: relatedProducts})
+            else {
+                res.status(200).json({ message: "get related products successfully", count: relatedProducts.length, relatedProducts: relatedProducts })
             }
-            
+
         }
     } catch (error) {
         console.log(error);
-        res.status(500).json({message : "error getting related products", error: error.message});
+        res.status(500).json({ message: "error getting related products", error: error.message });
     }
 
 })

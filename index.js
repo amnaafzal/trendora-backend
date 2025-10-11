@@ -25,11 +25,13 @@ require('./src/products/products.model');
 
 
 // all routes here  
-const authRouter = require('./src/users/user.router')
-const ProductRouter = require('./src/products/products.routes')
+const authRouter = require('./src/users/user.router');
+const ProductRouter = require('./src/products/products.routes');
+const ReviewsRouter = require('./src/reviews/review.routes');
 
 app.use('/api/auth', authRouter);
 app.use('/api/products', ProductRouter);
+app.use('/api/reviews', ReviewsRouter);
 
 async function main() {
   await mongoose.connect(process.env.MONGODB_URI)
