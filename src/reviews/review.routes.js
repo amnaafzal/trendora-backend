@@ -3,7 +3,7 @@ const Reviews = require('./reviews.models');
 const products = require('../products/products.model');
 const router = express.Router();
 
-
+// post new review
 router.post('/new-review', async (req, res) => {
     const { comment, rating, userId, productId } = req.body;
     let postedReview = {};
@@ -61,6 +61,41 @@ router.post('/new-review', async (req, res) => {
     }
 })
 
+// count total reviews
+
+router.get('/total-reviews', async(req, res) =>{
+    try {
+        const totalReviews = await Reviews.countDocuments({});
+        res.status(200).send({count: totalReviews});
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({message : "error fetching total reviews count", error: error.message})
+        
+    }
+} )
+
+
+// get reviews by user
+
+router.get('/:userId', async(req, res) =>{
+    const {userId} = req.params;
+    
+    try {
+        const reviews = await Reviews.find({userId})
+        if(reviews.length === 0){
+            res.status(200).json({message: "fetched reviews by user successfully", Reviews : reviews});
+        }
+        else{
+            res.status(404).send({message : "n review found"});
+        }
+
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({message: "error getting reviews by userId", error: error.message});
+    }
+})
 
 
 module.exports = router;
