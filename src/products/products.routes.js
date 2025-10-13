@@ -81,7 +81,7 @@ router.get("/:id", async (req, res) => {
     try {
         const productId = req.params.id;
         const singleProduct = await products.findById(productId).populate('author', 'email username');
-        const reviews = await Reviews.find({ productId }).populate('author', 'username email')
+        const reviews = await Reviews.find({ productId }).populate('userId', 'username email')
         await singleProduct.save();
         if (singleProduct) {
             res.status(200).json({ message: "got the product successfully", product: singleProduct, reviews: reviews })
